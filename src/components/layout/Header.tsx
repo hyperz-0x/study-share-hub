@@ -1,10 +1,31 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { Menu, X, BookOpen, Search } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu, X, BookOpen, Search, User, LogOut, LayoutDashboard } from "lucide-react";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { user, profile, role, signOut, isTeacher, isAdmin } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const getDashboardLink = () => {
+    if (isAdmin) return "/admin";
+    if (isTeacher) return "/teacher";
+    return "/";
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md">
@@ -30,24 +51,69 @@ const Header = () => {
           >
             Materials
           </Link>
-          <Link
-            to="/about"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
-            About
-          </Link>
+          {isTeacher && (
+            <Link
+              to="/teacher"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Dashboard
+            </Link>
+          )}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              Admin
+            </Link>
+          )}
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
             <Search className="h-5 w-5" />
           </Button>
-          <Button variant="outline" className="border-border hover:bg-secondary">
-            Log In
-          </Button>
-          <Button className="bg-gradient-hero hover:opacity-90">
-            Get Started
-          </Button>
+
+          {user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" className="gap-2 border-border">
+                  <User className="h-4 w-4" />
+                  <span className="max-w-[100px] truncate">{profile?.full_name || "User"}</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-medium text-foreground">{profile?.full_name}</p>
+                  <p className="text-xs text-muted-foreground capitalize">{role}</p>
+                </div>
+                <DropdownMenuSeparator />
+                {(isTeacher || isAdmin) && (
+                  <DropdownMenuItem onClick={() => navigate(getDashboardLink())}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Dashboard
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Sign Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <Link to="/auth">
+                <Button variant="outline" className="border-border hover:bg-secondary">
+                  Log In
+                </Button>
+              </Link>
+              <Link to="/auth">
+                <Button className="bg-gradient-hero hover:opacity-90">
+                  Get Started
+                </Button>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -81,20 +147,50 @@ const Header = () => {
             >
               Materials
             </Link>
-            <Link
-              to="/about"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              About
-            </Link>
+            {isTeacher && (
+              <Link
+                to="/teacher"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Dashboard
+              </Link>
+            )}
+            {isAdmin && (
+              <Link
+                to="/admin"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                Admin
+              </Link>
+            )}
             <div className="flex flex-col gap-2 pt-2">
-              <Button variant="outline" className="w-full border-border">
-                Log In
-              </Button>
-              <Button className="w-full bg-gradient-hero">
-                Get Started
-              </Button>
+              {user ? (
+                <>
+                  <div className="rounded-lg bg-muted/50 p-3">
+                    <p className="text-sm font-medium text-foreground">{profile?.full_name}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{role}</p>
+                  </div>
+                  <Button variant="outline" className="w-full" onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                    <Button variant="outline" className="w-full border-border">
+                      Log In
+                    </Button>
+                  </Link>
+                  <Link to="/auth" onClick={() => setIsMenuOpen(false)}>
+                    <Button className="w-full bg-gradient-hero">
+                      Get Started
+                    </Button>
+                  </Link>
+                </>
+              )}
             </div>
           </nav>
         </div>
