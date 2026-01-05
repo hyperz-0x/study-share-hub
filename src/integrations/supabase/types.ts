@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      allowed_admins: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      allowed_teachers: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
       materials: {
         Row: {
           approved_at: string | null
@@ -150,6 +192,42 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      teacher_subjects: {
+        Row: {
+          created_at: string
+          id: string
+          subject_id: string | null
+          teacher_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          subject_id?: string | null
+          teacher_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          subject_id?: string | null
+          teacher_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_subjects_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "teacher_subjects_teacher_id_fkey"
+            columns: ["teacher_id"]
+            isOneToOne: false
+            referencedRelation: "allowed_teachers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_roles: {
         Row: {

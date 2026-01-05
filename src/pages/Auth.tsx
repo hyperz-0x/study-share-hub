@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { BookOpen, Mail, Lock, User, GraduationCap, BookMarked, Shield, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { z } from "zod";
+import { supabase } from "@/integrations/supabase/client";
 
 type AuthMode = "login" | "signup";
 type Role = "student" | "teacher" | "admin";
@@ -68,6 +69,24 @@ const Auth = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const checkTeacherAllowed = async (name: string): Promise<boolean> => {
+    const { data } = await supabase
+      .from("allowed_teachers")
+      .select("id")
+      .ilike("full_name", name.trim())
+      .maybeSingle();
+    return !!data;
+  };
+
+  const checkAdminAllowed = async (name: string): Promise<boolean> => {
+    const { data } = await supabase
+      .from("allowed_admins")
+      .select("id")
+      .ilike("full_name", name.trim())
+      .maybeSingle();
+    return !!data;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -94,6 +113,31 @@ const Auth = () => {
           navigate("/");
         }
       } else {
+        // Validate teacher/admin name against database
+        if (selectedRole === "teacher") {
+          const isAllowed = await checkTeacherAllowed(fullName);
+          if (!isAllowed) {
+            toast({
+              title: "Registration not allowed",
+              description: "Your name is not in the approved teachers list. Please contact the administrator.",
+              variant: "destructive",
+            });
+            setIsSubmitting(false);
+            return;
+          }
+        } else if (selectedRole === "admin") {
+          const isAllowed = await checkAdminAllowed(fullName);
+          if (!isAllowed) {
+            toast({
+              title: "Registration not allowed",
+              description: "Your name is not in the approved admins list. Please contact the administrator.",
+              variant: "destructive",
+            });
+            setIsSubmitting(false);
+            return;
+          }
+        }
+
         const { error } = await signUp(email, password, fullName, selectedRole);
         if (error) {
           if (error.message.includes("already registered")) {
@@ -184,6 +228,13 @@ const Auth = () => {
                   </div>
                   {errors.fullName && (
                     <p className="text-sm text-destructive">{errors.fullName}</p>
+                  )}
+                  {(selectedRole === "teacher" || selectedRole === "admin") && (
+                    <p className="text-xs text-muted-foreground">
+                      {selectedRole === "teacher" 
+                        ? "Approved teachers: Shruti Dubey, Ajay Kamble, Pavan Kavale"
+                        : "Only approved admins can register"}
+                    </p>
                   )}
                 </div>
               )}
