@@ -1,7 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, BookOpen, Users, FileText } from "lucide-react";
+import { useStats } from "@/hooks/useStats";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
+  const { data: stats } = useStats();
+
   return (
     <section className="relative overflow-hidden bg-background py-16 md:py-24 lg:py-32">
       {/* Background decoration */}
@@ -32,12 +36,14 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col items-center justify-center gap-4 sm:flex-row animate-fade-up [animation-delay:300ms]">
-            <Button size="lg" className="group bg-gradient-hero px-8 hover:opacity-90">
-              Start Learning
-              <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <Button size="lg" className="group bg-gradient-hero px-8 hover:opacity-90" asChild>
+              <Link to="/subjects">
+                Start Learning
+                <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-border hover:bg-secondary">
-              Upload Materials
+            <Button size="lg" variant="outline" className="border-border hover:bg-secondary" asChild>
+              <Link to="/teacher">Upload Materials</Link>
             </Button>
           </div>
 
@@ -47,21 +53,21 @@ const HeroSection = () => {
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10">
                 <FileText className="h-6 w-6 text-primary" />
               </div>
-              <span className="text-2xl font-bold text-foreground">5,000+</span>
+              <span className="text-2xl font-bold text-foreground">{stats?.materials || 0}+</span>
               <span className="text-sm text-muted-foreground">Study Materials</span>
             </div>
             <div className="flex flex-col items-center gap-2">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20">
                 <Users className="h-6 w-6 text-accent-foreground" />
               </div>
-              <span className="text-2xl font-bold text-foreground">500+</span>
+              <span className="text-2xl font-bold text-foreground">{stats?.teachers || 0}+</span>
               <span className="text-sm text-muted-foreground">Expert Teachers</span>
             </div>
             <div className="flex flex-col items-center gap-2">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-success/10">
                 <BookOpen className="h-6 w-6 text-success" />
               </div>
-              <span className="text-2xl font-bold text-foreground">50+</span>
+              <span className="text-2xl font-bold text-foreground">{stats?.subjects || 0}</span>
               <span className="text-sm text-muted-foreground">Subjects Covered</span>
             </div>
           </div>
