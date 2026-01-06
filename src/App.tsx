@@ -12,6 +12,7 @@ import SubjectDetail from "./pages/SubjectDetail";
 import Materials from "./pages/Materials";
 import TeacherDashboard from "./pages/TeacherDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import StudentDashboard from "./pages/StudentDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -29,6 +30,14 @@ const App = () => (
             <Route path="/subjects" element={<Subjects />} />
             <Route path="/subjects/:slug" element={<SubjectDetail />} />
             <Route path="/materials" element={<Materials />} />
+            <Route
+              path="/student"
+              element={
+                <ProtectedRoute allowedRoles={["student"]}>
+                  <StudentDashboard />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/teacher"
               element={

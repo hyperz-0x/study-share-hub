@@ -14,7 +14,7 @@ import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { user, profile, role, signOut, isTeacher, isAdmin } = useAuth();
+  const { user, profile, role, signOut, isTeacher, isAdmin, isStudent } = useAuth();
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
@@ -25,6 +25,7 @@ const Header = () => {
   const getDashboardLink = () => {
     if (isAdmin) return "/admin";
     if (isTeacher) return "/teacher";
+    if (isStudent) return "/student";
     return "/";
   };
 
@@ -50,6 +51,14 @@ const Header = () => {
           >
             Materials
           </Link>
+          {isStudent && (
+            <Link
+              to="/student"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              My Dashboard
+            </Link>
+          )}
           {isTeacher && (
             <Link
               to="/teacher"
@@ -87,7 +96,7 @@ const Header = () => {
                   <p className="text-xs text-muted-foreground capitalize">{role}</p>
                 </div>
                 <DropdownMenuSeparator />
-                {(isTeacher || isAdmin) && (
+                {(isTeacher || isAdmin || isStudent) && (
                   <DropdownMenuItem onClick={() => navigate(getDashboardLink())}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     Dashboard
@@ -146,6 +155,15 @@ const Header = () => {
             >
               Materials
             </Link>
+            {isStudent && (
+              <Link
+                to="/student"
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                onClick={() => setIsMenuOpen(false)}
+              >
+                My Dashboard
+              </Link>
+            )}
             {isTeacher && (
               <Link
                 to="/teacher"

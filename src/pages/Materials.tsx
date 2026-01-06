@@ -1,13 +1,51 @@
 import { useMaterials } from "@/hooks/useMaterials";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRecordDownload } from "@/hooks/useUserDownloads";
+import { useBookmarks, useAddBookmark, useRemoveBookmark } from "@/hooks/useBookmarks";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { FileText, Download, Eye, User } from "lucide-react";
+import { Link, Navigate } from "react-router-dom";
+import { FileText, Download, Eye, User, Bookmark, BookmarkCheck } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const Materials = () => {
   const { data: materials, isLoading } = useMaterials(undefined, "approved");
+  const { user, loading } = useAuth();
+  const { data: bookmarks } = useBookmarks();
+  const recordDownload = useRecordDownload();
+  const addBookmark = useAddBookmark();
+  const removeBookmark = useRemoveBookmark();
+  const { toast } = useToast();
+
+  // Redirect to auth if not logged in
+  if (!loading && !user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  const bookmarkedMaterialIds = new Set(bookmarks?.map(b => b.material_id) || []);
+
+  const handleDownload = (material: { id: string; file_url: string }) => {
+    recordDownload.mutate(material.id);
+    window.open(material.file_url, "_blank");
+  };
+
+  const handleToggleBookmark = (materialId: string) => {
+    if (bookmarkedMaterialIds.has(materialId)) {
+      removeBookmark.mutate(materialId, {
+        onSuccess: () => {
+          toast({ title: "Bookmark removed" });
+        },
+      });
+    } else {
+      addBookmark.mutate(materialId, {
+        onSuccess: () => {
+          toast({ title: "Material bookmarked" });
+        },
+      });
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -23,7 +61,7 @@ const Materials = () => {
             </p>
           </div>
 
-          {isLoading ? (
+          {isLoading || loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </div>
@@ -48,9 +86,22 @@ const Materials = () => {
                     <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                       <FileText className="h-6 w-6 text-primary" />
                     </div>
-                    <Badge variant="secondary" className="text-xs">
-                      {material.file_type.split("/").pop()?.toUpperCase() || "FILE"}
-                    </Badge>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => handleToggleBookmark(material.id)}
+                        className="p-1 rounded hover:bg-secondary transition-colors"
+                        title={bookmarkedMaterialIds.has(material.id) ? "Remove bookmark" : "Add bookmark"}
+                      >
+                        {bookmarkedMaterialIds.has(material.id) ? (
+                          <BookmarkCheck className="h-5 w-5 text-primary" />
+                        ) : (
+                          <Bookmark className="h-5 w-5 text-muted-foreground hover:text-primary" />
+                        )}
+                      </button>
+                      <Badge variant="secondary" className="text-xs">
+                        {material.file_type.split("/").pop()?.toUpperCase() || "FILE"}
+                      </Badge>
+                    </div>
                   </div>
 
                   <h3 className="mb-2 font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
@@ -91,7 +142,7 @@ const Materials = () => {
 
                     <Button
                       className="mt-4 w-full bg-gradient-hero hover:opacity-90"
-                      onClick={() => window.open(material.file_url, "_blank")}
+                      onClick={() => handleDownload(material)}
                     >
                       <Download className="mr-2 h-4 w-4" />
                       Download
