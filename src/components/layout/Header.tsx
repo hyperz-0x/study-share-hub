@@ -9,7 +9,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, BookOpen, Search, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, Search, User, LogOut, LayoutDashboard } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -31,10 +32,8 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b border-border/50 bg-background/80 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between px-4 md:px-6">
         <Link to="/" className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-hero">
-            <BookOpen className="h-5 w-5 text-primary-foreground" />
-          </div>
-          <span className="font-display text-xl font-bold text-foreground">StudyHub</span>
+          <img src={logo} alt="LN-StudyHub Logo" className="h-10 w-auto" />
+          <span className="font-display text-xl font-bold text-foreground">LN-StudyHub</span>
         </Link>
 
         {/* Desktop Navigation */}

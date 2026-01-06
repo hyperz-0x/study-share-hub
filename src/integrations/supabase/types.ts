@@ -35,6 +35,27 @@ export type Database = {
         }
         Relationships: []
       }
+      allowed_students: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+        }
+        Relationships: []
+      }
       allowed_teachers: {
         Row: {
           created_at: string

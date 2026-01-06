@@ -5,10 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { BookOpen, Mail, Lock, User, GraduationCap, BookMarked, Shield, ArrowLeft } from "lucide-react";
+import { Mail, Lock, User, GraduationCap, BookMarked, Shield, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import logo from "@/assets/logo.png";
 
 type AuthMode = "login" | "signup";
 type Role = "student" | "teacher" | "admin";
@@ -87,6 +88,15 @@ const Auth = () => {
     return !!data;
   };
 
+  const checkStudentAllowed = async (name: string): Promise<boolean> => {
+    const { data } = await supabase
+      .from("allowed_students")
+      .select("id")
+      .ilike("full_name", name.trim())
+      .maybeSingle();
+    return !!data;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -113,8 +123,19 @@ const Auth = () => {
           navigate("/");
         }
       } else {
-        // Validate teacher/admin name against database
-        if (selectedRole === "teacher") {
+        // Validate role name against database
+        if (selectedRole === "student") {
+          const isAllowed = await checkStudentAllowed(fullName);
+          if (!isAllowed) {
+            toast({
+              title: "Registration not allowed",
+              description: "Your name is not in the college student database. Only enrolled students can register.",
+              variant: "destructive",
+            });
+            setIsSubmitting(false);
+            return;
+          }
+        } else if (selectedRole === "teacher") {
           const isAllowed = await checkTeacherAllowed(fullName);
           if (!isAllowed) {
             toast({
@@ -156,7 +177,7 @@ const Auth = () => {
         } else {
           toast({
             title: "Account created!",
-            description: "Welcome to StudyHub! You can now start using the platform.",
+            description: "Welcome to LN-StudyHub! You can now start using the platform.",
           });
           navigate("/");
         }
@@ -187,10 +208,8 @@ const Auth = () => {
         <div className="container flex h-16 items-center px-4">
           <Link to="/" className="flex items-center gap-2">
             <ArrowLeft className="h-5 w-5 text-muted-foreground" />
-            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-hero">
-              <BookOpen className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-display text-xl font-bold text-foreground">StudyHub</span>
+            <img src={logo} alt="LN-StudyHub Logo" className="h-10 w-auto" />
+            <span className="font-display text-xl font-bold text-foreground">LN-StudyHub</span>
           </Link>
         </div>
       </header>
@@ -206,7 +225,7 @@ const Auth = () => {
               <p className="mt-2 text-sm text-muted-foreground">
                 {mode === "login"
                   ? "Sign in to access your study materials"
-                  : "Join StudyHub to start learning today"}
+                  : "Join LN-StudyHub to start learning today"}
               </p>
             </div>
 
@@ -229,13 +248,13 @@ const Auth = () => {
                   {errors.fullName && (
                     <p className="text-sm text-destructive">{errors.fullName}</p>
                   )}
-                  {(selectedRole === "teacher" || selectedRole === "admin") && (
-                    <p className="text-xs text-muted-foreground">
-                      {selectedRole === "teacher" 
+                  <p className="text-xs text-muted-foreground">
+                    {selectedRole === "student"
+                      ? "Only enrolled college students can register"
+                      : selectedRole === "teacher" 
                         ? "Approved teachers: Shruti Dubey, Ajay Kamble, Pavan Kavale"
                         : "Only approved admins can register"}
-                    </p>
-                  )}
+                  </p>
                 </div>
               )}
 
