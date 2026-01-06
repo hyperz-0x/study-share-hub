@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import { BookOpen, Github, Twitter, Linkedin } from "lucide-react";
+import { Github, Twitter, Linkedin } from "lucide-react";
+import logo from "@/assets/logo.png";
 
 const Footer = () => {
   return (
@@ -9,10 +10,8 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-hero">
-                <BookOpen className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="font-display text-xl font-bold text-foreground">StudyHub</span>
+              <img src={logo} alt="LN-StudyHub Logo" className="h-10 w-auto" />
+              <span className="font-display text-xl font-bold text-foreground">LN-StudyHub</span>
             </Link>
             <p className="text-sm text-muted-foreground">
               Your digital learning platform for accessing and sharing quality study materials.
@@ -99,7 +98,7 @@ const Footer = () => {
 
         <div className="mt-12 border-t border-border pt-6">
           <p className="text-center text-sm text-muted-foreground">
-            © {new Date().getFullYear()} StudyHub. All rights reserved.
+            © {new Date().getFullYear()} LN-StudyHub. All rights reserved.
           </p>
         </div>
       </div>
