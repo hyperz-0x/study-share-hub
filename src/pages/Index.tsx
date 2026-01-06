@@ -3,6 +3,7 @@ import Footer from "@/components/layout/Footer";
 import HeroSection from "@/components/home/HeroSection";
 import SubjectsSection from "@/components/home/SubjectsSection";
 import FeaturedMaterials from "@/components/home/FeaturedMaterials";
+import TeachersSection from "@/components/home/TeachersSection";
 import HowItWorks from "@/components/home/HowItWorks";
 import RolesSection from "@/components/home/RolesSection";
 import CTASection from "@/components/home/CTASection";
@@ -15,6 +16,7 @@ const Index = () => {
         <HeroSection />
         <SubjectsSection />
         <FeaturedMaterials />
+        <TeachersSection />
         <HowItWorks />
         <RolesSection />
         <CTASection />
