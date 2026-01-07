@@ -2,6 +2,15 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePendingMaterials, useApproveMaterial, useRejectMaterial } from "@/hooks/useMaterials";
 import { useAllowedStudents, useAddAllowedStudent, useRemoveAllowedStudent } from "@/hooks/useAllowedStudents";
+import { 
+  useAllowedTeachers, 
+  useTeacherSubjectAssignments, 
+  useAssignSubjectToTeacher, 
+  useRemoveSubjectFromTeacher,
+  useAddAllowedTeacher,
+  useRemoveAllowedTeacher
+} from "@/hooks/useTeacherManagement";
+import { useSubjects } from "@/hooks/useSubjects";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -26,6 +35,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
@@ -40,16 +56,26 @@ import {
   Users,
   Plus,
   Trash2,
+  GraduationCap,
+  BookOpen,
+  X,
 } from "lucide-react";
 
 const AdminDashboard = () => {
   const { profile } = useAuth();
   const { data: pendingMaterials, isLoading } = usePendingMaterials();
   const { data: students, isLoading: studentsLoading } = useAllowedStudents();
+  const { data: teachers, isLoading: teachersLoading } = useAllowedTeachers();
+  const { data: teacherSubjects } = useTeacherSubjectAssignments();
+  const { data: subjects } = useSubjects();
   const approveMutation = useApproveMaterial();
   const rejectMutation = useRejectMaterial();
   const addStudentMutation = useAddAllowedStudent();
   const removeStudentMutation = useRemoveAllowedStudent();
+  const addTeacherMutation = useAddAllowedTeacher();
+  const removeTeacherMutation = useRemoveAllowedTeacher();
+  const assignSubjectMutation = useAssignSubjectToTeacher();
+  const removeSubjectMutation = useRemoveSubjectFromTeacher();
   const { toast } = useToast();
 
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
@@ -60,12 +86,29 @@ const AdminDashboard = () => {
   const [newStudentName, setNewStudentName] = useState("");
   const [newStudentEmail, setNewStudentEmail] = useState("");
 
+  const [addTeacherDialogOpen, setAddTeacherDialogOpen] = useState(false);
+  const [newTeacherName, setNewTeacherName] = useState("");
+  const [newTeacherEmail, setNewTeacherEmail] = useState("");
+
+  const [assignSubjectDialogOpen, setAssignSubjectDialogOpen] = useState(false);
+  const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
+  const [selectedSubjectId, setSelectedSubjectId] = useState("");
+
+  const getTeacherSubjects = (teacherId: string) => {
+    return teacherSubjects?.filter(ts => ts.teacher_id === teacherId) || [];
+  };
+
+  const getAvailableSubjectsForTeacher = (teacherId: string) => {
+    const assignedSubjectIds = getTeacherSubjects(teacherId).map(ts => ts.subject_id);
+    return subjects?.filter(s => !assignedSubjectIds.includes(s.id)) || [];
+  };
+
   const handleApprove = async (materialId: string) => {
     try {
       await approveMutation.mutateAsync(materialId);
       toast({
         title: "Material approved",
-        description: "The material is now visible to students.",
+        description: "The material is now visible to students. The author has been notified.",
       });
     } catch (error: any) {
       toast({
@@ -93,7 +136,7 @@ const AdminDashboard = () => {
       });
       toast({
         title: "Material rejected",
-        description: "The author has been notified.",
+        description: "The author has been notified via email.",
       });
       setRejectDialogOpen(false);
       setSelectedMaterialId(null);
@@ -154,6 +197,99 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleAddTeacher = async () => {
+    if (!newTeacherName.trim()) {
+      toast({
+        title: "Name required",
+        description: "Please enter the teacher's full name.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await addTeacherMutation.mutateAsync({
+        fullName: newTeacherName.trim(),
+        email: newTeacherEmail.trim() || undefined,
+      });
+      toast({
+        title: "Teacher added",
+        description: `${newTeacherName} can now register as a teacher.`,
+      });
+      setAddTeacherDialogOpen(false);
+      setNewTeacherName("");
+      setNewTeacherEmail("");
+    } catch (error: any) {
+      toast({
+        title: "Failed to add teacher",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemoveTeacher = async (teacherId: string, teacherName: string) => {
+    try {
+      await removeTeacherMutation.mutateAsync(teacherId);
+      toast({
+        title: "Teacher removed",
+        description: `${teacherName} has been removed.`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to remove teacher",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAssignSubject = async () => {
+    if (!selectedTeacherId || !selectedSubjectId) {
+      toast({
+        title: "Please select a subject",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      await assignSubjectMutation.mutateAsync({
+        teacherId: selectedTeacherId,
+        subjectId: selectedSubjectId,
+      });
+      toast({
+        title: "Subject assigned",
+        description: "The subject has been assigned to the teacher.",
+      });
+      setAssignSubjectDialogOpen(false);
+      setSelectedTeacherId(null);
+      setSelectedSubjectId("");
+    } catch (error: any) {
+      toast({
+        title: "Failed to assign subject",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRemoveSubjectAssignment = async (assignmentId: string) => {
+    try {
+      await removeSubjectMutation.mutateAsync(assignmentId);
+      toast({
+        title: "Subject removed",
+        description: "The subject assignment has been removed.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Failed to remove subject",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -176,7 +312,7 @@ const AdminDashboard = () => {
           </div>
 
           <Tabs defaultValue="materials" className="space-y-6">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+            <TabsList className="grid w-full max-w-lg grid-cols-3">
               <TabsTrigger value="materials" className="flex items-center gap-2">
                 <FileText className="h-4 w-4" />
                 Materials
@@ -184,6 +320,10 @@ const AdminDashboard = () => {
               <TabsTrigger value="students" className="flex items-center gap-2">
                 <Users className="h-4 w-4" />
                 Students
+              </TabsTrigger>
+              <TabsTrigger value="teachers" className="flex items-center gap-2">
+                <GraduationCap className="h-4 w-4" />
+                Teachers
               </TabsTrigger>
             </TabsList>
 
@@ -414,6 +554,146 @@ const AdminDashboard = () => {
                 )}
               </div>
             </TabsContent>
+
+            <TabsContent value="teachers" className="space-y-6">
+              {/* Teacher Stats */}
+              <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent/10">
+                      <GraduationCap className="h-6 w-6 text-accent" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-foreground">
+                        {teachers?.length || 0}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Registered Teachers</p>
+                    </div>
+                  </div>
+                  <Button onClick={() => setAddTeacherDialogOpen(true)}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add Teacher
+                  </Button>
+                </div>
+              </div>
+
+              {/* Teacher List with Subject Assignments */}
+              <div className="rounded-xl border border-border bg-card shadow-card">
+                <div className="border-b border-border p-6">
+                  <h2 className="font-display text-xl font-semibold text-foreground">
+                    Teachers & Subject Assignments
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Manage teachers and assign subjects they can teach
+                  </p>
+                </div>
+
+                {teachersLoading ? (
+                  <div className="flex items-center justify-center p-12">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                  </div>
+                ) : teachers?.length === 0 ? (
+                  <div className="p-12 text-center">
+                    <GraduationCap className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                    <h3 className="mt-4 font-display text-lg font-semibold text-foreground">
+                      No teachers added
+                    </h3>
+                    <p className="mt-2 text-muted-foreground">
+                      Add teachers to allow them to upload materials.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {teachers?.map((teacher) => {
+                      const assignedSubjects = getTeacherSubjects(teacher.id);
+                      const availableSubjects = getAvailableSubjectsForTeacher(teacher.id);
+
+                      return (
+                        <div key={teacher.id} className="p-4">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start gap-3">
+                              <div className="flex h-10 w-10 items-center justify-center rounded-full bg-accent/10">
+                                <GraduationCap className="h-5 w-5 text-accent" />
+                              </div>
+                              <div>
+                                <p className="font-medium text-foreground">{teacher.full_name}</p>
+                                {teacher.email && (
+                                  <p className="text-sm text-muted-foreground">{teacher.email}</p>
+                                )}
+                                {/* Assigned Subjects */}
+                                <div className="mt-2 flex flex-wrap gap-2">
+                                  {assignedSubjects.length === 0 ? (
+                                    <span className="text-sm text-muted-foreground italic">
+                                      No subjects assigned
+                                    </span>
+                                  ) : (
+                                    assignedSubjects.map((ts) => (
+                                      <Badge
+                                        key={ts.id}
+                                        variant="secondary"
+                                        className="flex items-center gap-1"
+                                      >
+                                        <BookOpen className="h-3 w-3" />
+                                        {ts.subjects?.name}
+                                        <button
+                                          onClick={() => handleRemoveSubjectAssignment(ts.id)}
+                                          className="ml-1 rounded-full p-0.5 hover:bg-destructive/20"
+                                        >
+                                          <X className="h-3 w-3" />
+                                        </button>
+                                      </Badge>
+                                    ))
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {availableSubjects.length > 0 && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setSelectedTeacherId(teacher.id);
+                                    setAssignSubjectDialogOpen(true);
+                                  }}
+                                >
+                                  <Plus className="mr-1 h-4 w-4" />
+                                  Assign Subject
+                                </Button>
+                              )}
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive">
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Remove Teacher</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to remove {teacher.full_name}? This will also remove all their subject assignments.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction
+                                      onClick={() => handleRemoveTeacher(teacher.id, teacher.full_name)}
+                                      className="bg-destructive hover:bg-destructive/90"
+                                    >
+                                      Remove
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
           </Tabs>
         </div>
       </main>
@@ -425,7 +705,7 @@ const AdminDashboard = () => {
           <DialogHeader>
             <DialogTitle className="font-display">Reject Material</DialogTitle>
             <DialogDescription>
-              Please provide a reason for rejection. This will be shared with the author.
+              Please provide a reason for rejection. This will be shared with the author via email.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -493,6 +773,91 @@ const AdminDashboard = () => {
                 disabled={addStudentMutation.isPending}
               >
                 {addStudentMutation.isPending ? "Adding..." : "Add Student"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Teacher Dialog */}
+      <Dialog open={addTeacherDialogOpen} onOpenChange={setAddTeacherDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Add Teacher</DialogTitle>
+            <DialogDescription>
+              Add a new teacher to the allowed list. They will be able to register and upload materials.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="teacherName">Full Name *</Label>
+              <Input
+                id="teacherName"
+                value={newTeacherName}
+                onChange={(e) => setNewTeacherName(e.target.value)}
+                placeholder="Enter teacher's full name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="teacherEmail">Email (optional)</Label>
+              <Input
+                id="teacherEmail"
+                type="email"
+                value={newTeacherEmail}
+                onChange={(e) => setNewTeacherEmail(e.target.value)}
+                placeholder="Enter teacher's email"
+              />
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setAddTeacherDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAddTeacher}
+                disabled={addTeacherMutation.isPending}
+              >
+                {addTeacherMutation.isPending ? "Adding..." : "Add Teacher"}
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Assign Subject Dialog */}
+      <Dialog open={assignSubjectDialogOpen} onOpenChange={setAssignSubjectDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="font-display">Assign Subject</DialogTitle>
+            <DialogDescription>
+              Select a subject to assign to this teacher.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label>Subject</Label>
+              <Select value={selectedSubjectId} onValueChange={setSelectedSubjectId}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a subject" />
+                </SelectTrigger>
+                <SelectContent>
+                  {selectedTeacherId &&
+                    getAvailableSubjectsForTeacher(selectedTeacherId).map((subject) => (
+                      <SelectItem key={subject.id} value={subject.id}>
+                        {subject.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" onClick={() => setAssignSubjectDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button
+                onClick={handleAssignSubject}
+                disabled={assignSubjectMutation.isPending || !selectedSubjectId}
+              >
+                {assignSubjectMutation.isPending ? "Assigning..." : "Assign Subject"}
               </Button>
             </div>
           </div>

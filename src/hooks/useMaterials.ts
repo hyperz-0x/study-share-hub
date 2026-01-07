@@ -211,6 +211,15 @@ export const useApproveMaterial = () => {
         .eq("id", materialId);
 
       if (error) throw error;
+
+      // Send email notification
+      try {
+        await supabase.functions.invoke("send-material-notification", {
+          body: { materialId, action: "approved" },
+        });
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["materials"] });
@@ -233,6 +242,15 @@ export const useRejectMaterial = () => {
         .eq("id", materialId);
 
       if (error) throw error;
+
+      // Send email notification
+      try {
+        await supabase.functions.invoke("send-material-notification", {
+          body: { materialId, action: "rejected", rejectionReason: reason },
+        });
+      } catch (emailError) {
+        console.error("Failed to send email notification:", emailError);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["materials"] });

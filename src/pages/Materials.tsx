@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { useMaterials } from "@/hooks/useMaterials";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRecordDownload } from "@/hooks/useUserDownloads";
@@ -6,8 +7,9 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Link, Navigate } from "react-router-dom";
-import { FileText, Download, Eye, User, Bookmark, BookmarkCheck } from "lucide-react";
+import { FileText, Download, Eye, User, Bookmark, BookmarkCheck, Search, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 const Materials = () => {
@@ -18,6 +20,7 @@ const Materials = () => {
   const addBookmark = useAddBookmark();
   const removeBookmark = useRemoveBookmark();
   const { toast } = useToast();
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Redirect to auth if not logged in
   if (!loading && !user) {
@@ -25,6 +28,21 @@ const Materials = () => {
   }
 
   const bookmarkedMaterialIds = new Set(bookmarks?.map(b => b.material_id) || []);
+
+  // Filter materials based on search query
+  const filteredMaterials = useMemo(() => {
+    if (!materials) return [];
+    if (!searchQuery.trim()) return materials;
+
+    const query = searchQuery.toLowerCase();
+    return materials.filter((material) => {
+      const titleMatch = material.title.toLowerCase().includes(query);
+      const subjectMatch = material.subjects?.name.toLowerCase().includes(query);
+      const authorMatch = material.author_profile?.full_name?.toLowerCase().includes(query);
+      const descriptionMatch = material.description?.toLowerCase().includes(query);
+      return titleMatch || subjectMatch || authorMatch || descriptionMatch;
+    });
+  }, [materials, searchQuery]);
 
   const handleDownload = (material: { id: string; file_url: string }) => {
     recordDownload.mutate(material.id);
@@ -61,23 +79,52 @@ const Materials = () => {
             </p>
           </div>
 
+          {/* Search Bar */}
+          <div className="mx-auto mb-8 max-w-xl">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search by title, subject, or author..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-10"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              )}
+            </div>
+            {searchQuery && (
+              <p className="mt-2 text-center text-sm text-muted-foreground">
+                Found {filteredMaterials.length} result{filteredMaterials.length !== 1 ? "s" : ""} for "{searchQuery}"
+              </p>
+            )}
+          </div>
+
           {isLoading || loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </div>
-          ) : materials?.length === 0 ? (
+          ) : filteredMaterials.length === 0 ? (
             <div className="rounded-xl border border-border bg-card p-12 text-center shadow-card">
               <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
               <h3 className="mt-4 font-display text-lg font-semibold text-foreground">
-                No materials available
+                {searchQuery ? "No materials found" : "No materials available"}
               </h3>
               <p className="mt-2 text-muted-foreground">
-                Check back soon for new study materials.
+                {searchQuery
+                  ? "Try adjusting your search terms."
+                  : "Check back soon for new study materials."}
               </p>
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {materials?.map((material) => (
+              {filteredMaterials.map((material) => (
                 <article
                   key={material.id}
                   className="group flex flex-col rounded-xl border border-border bg-card p-6 shadow-card transition-all duration-300 hover:border-primary/30 hover:shadow-card-hover"
