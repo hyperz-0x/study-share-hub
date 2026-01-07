@@ -1,1 +1,4 @@
 project_id = "ubnagtorpqpczxteelrc"
+
+[functions.send-material-notification]
+verify_jwt = false
