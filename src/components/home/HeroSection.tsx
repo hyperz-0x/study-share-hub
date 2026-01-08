@@ -16,12 +16,6 @@ const HeroSection = () => {
 
       <div className="container relative px-4 md:px-6">
         <div className="mx-auto max-w-4xl text-center">
-          {/* Badge */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm shadow-card animate-fade-up">
-            <span className="flex h-2 w-2 rounded-full bg-success" />
-            <span className="text-muted-foreground">Trusted by 10,000+ students</span>
-          </div>
-
           {/* Heading */}
           <h1 className="mb-6 font-display text-4xl font-bold tracking-tight text-foreground md:text-5xl lg:text-6xl animate-fade-up [animation-delay:100ms]">
             Your Digital Hub for{" "}
