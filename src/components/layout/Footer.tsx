@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Github, Twitter, Linkedin } from "lucide-react";
+import { Instagram, MessageCircle, Mail, Phone, MapPin } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -17,14 +17,21 @@ const Footer = () => {
               Your digital learning platform for accessing and sharing quality study materials.
             </p>
             <div className="flex gap-4">
-              <a href="#" className="text-muted-foreground transition-colors hover:text-foreground">
-                <Twitter className="h-5 w-5" />
+              <a 
+                href="https://www.instagram.com/lncolg?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <Instagram className="h-5 w-5" />
               </a>
-              <a href="#" className="text-muted-foreground transition-colors hover:text-foreground">
-                <Github className="h-5 w-5" />
-              </a>
-              <a href="#" className="text-muted-foreground transition-colors hover:text-foreground">
-                <Linkedin className="h-5 w-5" />
+              <a 
+                href="https://wa.me/918369916551" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-muted-foreground transition-colors hover:text-foreground"
+              >
+                <MessageCircle className="h-5 w-5" />
               </a>
             </div>
           </div>
@@ -73,24 +80,25 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Support */}
+          {/* Contact Info */}
           <div className="space-y-4">
-            <h4 className="font-display font-semibold text-foreground">Support</h4>
-            <ul className="space-y-2">
-              <li>
-                <Link to="/help" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                  Help Center
-                </Link>
+            <h4 className="font-display font-semibold text-foreground">Contact Us</h4>
+            <ul className="space-y-3">
+              <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <Mail className="h-4 w-4 mt-0.5 shrink-0" />
+                <a href="mailto:hellolncollege@gmail.com" className="hover:text-foreground transition-colors">
+                  hellolncollege@gmail.com
+                </a>
               </li>
-              <li>
-                <Link to="/contact" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                  Contact Us
-                </Link>
+              <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <Phone className="h-4 w-4 mt-0.5 shrink-0" />
+                <a href="tel:+919137781252" className="hover:text-foreground transition-colors">
+                  +91 91377 81252
+                </a>
               </li>
-              <li>
-                <Link to="/privacy" className="text-sm text-muted-foreground transition-colors hover:text-foreground">
-                  Privacy Policy
-                </Link>
+              <li className="flex items-start gap-2 text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
+                <span>LN College, Suman Education Society Campus, Borivali, Mumbai - 400066</span>
               </li>
             </ul>
           </div>
