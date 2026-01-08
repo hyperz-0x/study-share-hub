@@ -60,7 +60,7 @@ const HeroSection = () => {
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent/20">
                 <Users className="h-6 w-6 text-accent-foreground" />
               </div>
-              <span className="text-2xl font-bold text-foreground">{stats?.teachers || 0}+</span>
+              <span className="text-2xl font-bold text-foreground">3+</span>
               <span className="text-sm text-muted-foreground">Expert Teachers</span>
             </div>
             <div className="flex flex-col items-center gap-2">
