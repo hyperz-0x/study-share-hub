@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Phone, MapPin, Send, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Send, Clock, Instagram, MessageCircle } from "lucide-react";
 
 const Contact = () => {
   const { user, profile } = useAuth();
@@ -64,25 +64,25 @@ const Contact = () => {
     {
       icon: Mail,
       title: "Email Us",
-      details: "support@ln-studyhub.com",
+      details: "hellolncollege@gmail.com",
       description: "Send us an email anytime",
     },
     {
       icon: Phone,
       title: "Call Us",
-      details: "+91 123 456 7890",
-      description: "Mon-Fri from 9am to 6pm",
+      details: "+91 91377 81252",
+      description: "Mon-Fri from 10am to 5pm",
     },
     {
       icon: MapPin,
       title: "Visit Us",
       details: "LN College Campus",
-      description: "Main Building, Room 101",
+      description: "Suman Education Society Campus, Near General Kariappa Bridge, Meghdoot, Rajendra Nagar, Borivali, Mumbai, Maharashtra 400066",
     },
     {
       icon: Clock,
       title: "Office Hours",
-      details: "9:00 AM - 6:00 PM",
+      details: "10:00 AM - 5:00 PM",
       description: "Monday to Friday",
     },
   ];
@@ -195,9 +195,10 @@ const Contact = () => {
                       LN College Campus
                     </h3>
                     <p className="mt-2 text-muted-foreground">
-                      Main Building, Room 101<br />
-                      Near Central Library<br />
-                      City, State - 123456
+                      Suman Education Society Campus<br />
+                      Near General Kariappa Bridge, Meghdoot<br />
+                      Rajendra Nagar, Borivali, Mumbai<br />
+                      Maharashtra 400066
                     </p>
                   </div>
                 </div>
@@ -214,6 +215,33 @@ const Contact = () => {
                   </a>{" "}
                   where you'll find answers to frequently asked questions and detailed guides.
                 </p>
+              </div>
+
+              {/* Social Media Links */}
+              <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+                <h3 className="mb-4 font-display text-lg font-semibold text-foreground">
+                  Connect With Us
+                </h3>
+                <div className="flex gap-4">
+                  <a
+                    href="https://www.instagram.com/lncolg?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-500 to-pink-500 px-4 py-3 text-white transition-opacity hover:opacity-90"
+                  >
+                    <Instagram className="h-5 w-5" />
+                    Instagram
+                  </a>
+                  <a
+                    href="https://wa.me/918369916551"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 rounded-lg bg-green-500 px-4 py-3 text-white transition-opacity hover:opacity-90"
+                  >
+                    <MessageCircle className="h-5 w-5" />
+                    WhatsApp
+                  </a>
+                </div>
               </div>
             </div>
           </div>
