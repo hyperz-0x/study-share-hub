@@ -10,7 +10,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="flex items-center gap-2">
-              <img src={logo} alt="LN-StudyHub Logo" className="h-10 w-auto" />
+              <img src={logo} alt="LN-StudyHub Logo" className="h-14 w-auto" />
               <span className="font-display text-xl font-bold text-foreground">LN-StudyHub</span>
             </Link>
             <p className="text-sm text-muted-foreground">
