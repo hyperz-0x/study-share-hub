@@ -1,6 +1,7 @@
 import { useParams, Link } from "react-router-dom";
 import { useSubject } from "@/hooks/useSubjects";
 import { useMaterials } from "@/hooks/useMaterials";
+import { useAuth } from "@/contexts/AuthContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Badge } from "@/components/ui/badge";
@@ -13,10 +14,12 @@ import {
   ArrowLeft,
   Clock,
   User,
+  Lock,
 } from "lucide-react";
 
 const SubjectDetail = () => {
   const { slug } = useParams<{ slug: string }>();
+  const { user } = useAuth();
   const { data: subject, isLoading: subjectLoading } = useSubject(slug || "");
   const { data: materials, isLoading: materialsLoading } = useMaterials(slug, "approved");
 
@@ -77,7 +80,20 @@ const SubjectDetail = () => {
           </div>
 
           {/* Materials Grid */}
-          {materialsLoading ? (
+          {!user ? (
+            <div className="rounded-xl border border-border bg-card p-12 text-center shadow-card">
+              <Lock className="mx-auto h-12 w-12 text-muted-foreground/50" />
+              <h3 className="mt-4 font-display text-lg font-semibold text-foreground">
+                Sign in to view materials
+              </h3>
+              <p className="mt-2 text-muted-foreground">
+                Please log in to access study materials for {subject.name}.
+              </p>
+              <Button asChild className="mt-6 bg-gradient-hero hover:opacity-90">
+                <Link to="/auth">Sign In</Link>
+              </Button>
+            </div>
+          ) : materialsLoading ? (
             <div className="flex items-center justify-center py-12">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
             </div>
