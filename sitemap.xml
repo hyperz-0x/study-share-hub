@@ -3,23 +3,22 @@
 
    <url>
       <loc>https://ln-study.netlify.app/</loc>
-      <lastmod>2026-02-25</lastmod>
-      <changefreq>weekly</changefreq>
-      <priority>1.0</priority>
    </url>
 
    <url>
-      <loc>https://ln-study.netlify.app/about.html</loc>
-      <lastmod>2026-02-25</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.8</priority>
+      <loc>https://ln-studyhub.netlify.app/materials</loc>
    </url>
 
    <url>
-      <loc>https://ln-study.netlify.app/contact.html</loc>
-      <lastmod>2026-02-25</lastmod>
-      <changefreq>monthly</changefreq>
-      <priority>0.7</priority>
+      <loc>https://ln-studyhub.netlify.app/student</loc>
+   </url>
+
+   <url>
+      <loc>https://ln-studyhub.netlify.app/subjects</loc>
+   </url>
+
+   <url>
+      <loc>https://ln-studyhub.netlify.app/auth</loc>
    </url>
 
 </urlset>
