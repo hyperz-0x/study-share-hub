@@ -3,46 +3,116 @@ import { useMaterials } from "@/hooks/useMaterials";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRecordDownload } from "@/hooks/useUserDownloads";
 import { useBookmarks, useAddBookmark, useRemoveBookmark } from "@/hooks/useBookmarks";
+import { useSubjects } from "@/hooks/useSubjects";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Link, Navigate } from "react-router-dom";
-import { FileText, Download, Eye, User, Bookmark, BookmarkCheck, Search, X } from "lucide-react";
+import MaterialFilters, { type FilterState, type DateFilter } from "@/components/materials/MaterialFilters";
+import MaterialCard from "@/components/materials/MaterialCard";
+import { FileText } from "lucide-react";
+import { Navigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+
+const getDateThreshold = (range: DateFilter): Date | null => {
+  if (range === "all") return null;
+  const now = new Date();
+  switch (range) {
+    case "today":
+      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    case "week":
+      return new Date(now.getTime() - 7 * 86400000);
+    case "month":
+      return new Date(now.getTime() - 30 * 86400000);
+    case "year":
+      return new Date(now.getTime() - 365 * 86400000);
+  }
+};
 
 const Materials = () => {
   const { data: materials, isLoading } = useMaterials(undefined, "approved");
+  const { data: subjects } = useSubjects();
   const { user, loading } = useAuth();
   const { data: bookmarks } = useBookmarks();
   const recordDownload = useRecordDownload();
   const addBookmark = useAddBookmark();
   const removeBookmark = useRemoveBookmark();
   const { toast } = useToast();
-  const [searchQuery, setSearchQuery] = useState("");
 
-  // Redirect to auth if not logged in
+  const [filters, setFilters] = useState<FilterState>({
+    search: "",
+    subjectId: "all",
+    fileType: "all",
+    dateRange: "all",
+    sort: "newest",
+  });
+
+  const bookmarkedIds = new Set(bookmarks?.map((b) => b.material_id) || []);
+
+  // Extract unique file types from materials
+  const fileTypes = useMemo(() => {
+    if (!materials) return [];
+    const types = new Set(
+      materials.map((m) => m.file_type.split("/").pop()?.toLowerCase() || "").filter(Boolean)
+    );
+    return [...types].sort();
+  }, [materials]);
+
+  // Apply all filters + sort
+  const filteredMaterials = useMemo(() => {
+    if (!materials) return [];
+
+    let result = materials;
+
+    // Text search
+    if (filters.search.trim()) {
+      const q = filters.search.toLowerCase();
+      result = result.filter(
+        (m) =>
+          m.title.toLowerCase().includes(q) ||
+          m.subjects?.name.toLowerCase().includes(q) ||
+          m.author_profile?.full_name?.toLowerCase().includes(q) ||
+          m.description?.toLowerCase().includes(q)
+      );
+    }
+
+    // Subject filter
+    if (filters.subjectId !== "all") {
+      result = result.filter((m) => m.subject_id === filters.subjectId);
+    }
+
+    // File type filter
+    if (filters.fileType !== "all") {
+      result = result.filter(
+        (m) => m.file_type.split("/").pop()?.toLowerCase() === filters.fileType
+      );
+    }
+
+    // Date filter
+    const threshold = getDateThreshold(filters.dateRange);
+    if (threshold) {
+      result = result.filter((m) => new Date(m.created_at) >= threshold);
+    }
+
+    // Sort
+    result = [...result].sort((a, b) => {
+      switch (filters.sort) {
+        case "oldest":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "most-downloaded":
+          return (b.downloads || 0) - (a.downloads || 0);
+        case "most-viewed":
+          return (b.views || 0) - (a.views || 0);
+        default:
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+      }
+    });
+
+    return result;
+  }, [materials, filters]);
+
+  // Redirect after all hooks
   if (!loading && !user) {
     return <Navigate to="/auth" replace />;
   }
-
-  const bookmarkedMaterialIds = new Set(bookmarks?.map(b => b.material_id) || []);
-
-  // Filter materials based on search query
-  const filteredMaterials = useMemo(() => {
-    if (!materials) return [];
-    if (!searchQuery.trim()) return materials;
-
-    const query = searchQuery.toLowerCase();
-    return materials.filter((material) => {
-      const titleMatch = material.title.toLowerCase().includes(query);
-      const subjectMatch = material.subjects?.name.toLowerCase().includes(query);
-      const authorMatch = material.author_profile?.full_name?.toLowerCase().includes(query);
-      const descriptionMatch = material.description?.toLowerCase().includes(query);
-      return titleMatch || subjectMatch || authorMatch || descriptionMatch;
-    });
-  }, [materials, searchQuery]);
 
   const handleDownload = (material: { id: string; file_url: string }) => {
     recordDownload.mutate(material.id);
@@ -50,17 +120,13 @@ const Materials = () => {
   };
 
   const handleToggleBookmark = (materialId: string) => {
-    if (bookmarkedMaterialIds.has(materialId)) {
+    if (bookmarkedIds.has(materialId)) {
       removeBookmark.mutate(materialId, {
-        onSuccess: () => {
-          toast({ title: "Bookmark removed" });
-        },
+        onSuccess: () => toast({ title: "Bookmark removed" }),
       });
     } else {
       addBookmark.mutate(materialId, {
-        onSuccess: () => {
-          toast({ title: "Material bookmarked" });
-        },
+        onSuccess: () => toast({ title: "Material bookmarked" }),
       });
     }
   };
@@ -79,31 +145,15 @@ const Materials = () => {
             </p>
           </div>
 
-          {/* Search Bar */}
-          <div className="mx-auto mb-8 max-w-xl">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="text"
-                placeholder="Search by title, subject, or author..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-10"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              )}
-            </div>
-            {searchQuery && (
-              <p className="mt-2 text-center text-sm text-muted-foreground">
-                Found {filteredMaterials.length} result{filteredMaterials.length !== 1 ? "s" : ""} for "{searchQuery}"
-              </p>
-            )}
+          {/* Filters */}
+          <div className="mb-8">
+            <MaterialFilters
+              filters={filters}
+              onFiltersChange={setFilters}
+              subjects={subjects || []}
+              fileTypes={fileTypes}
+              resultCount={filteredMaterials.length}
+            />
           </div>
 
           {isLoading || loading ? (
@@ -114,88 +164,26 @@ const Materials = () => {
             <div className="rounded-xl border border-border bg-card p-12 text-center shadow-card">
               <FileText className="mx-auto h-12 w-12 text-muted-foreground/50" />
               <h3 className="mt-4 font-display text-lg font-semibold text-foreground">
-                {searchQuery ? "No materials found" : "No materials available"}
+                {filters.search || filters.subjectId !== "all" || filters.fileType !== "all" || filters.dateRange !== "all"
+                  ? "No materials found"
+                  : "No materials available"}
               </h3>
               <p className="mt-2 text-muted-foreground">
-                {searchQuery
-                  ? "Try adjusting your search terms."
+                {filters.search || filters.subjectId !== "all"
+                  ? "Try adjusting your filters or search terms."
                   : "Check back soon for new study materials."}
               </p>
             </div>
           ) : (
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
               {filteredMaterials.map((material) => (
-                <article
+                <MaterialCard
                   key={material.id}
-                  className="group flex flex-col rounded-xl border border-border bg-card p-6 shadow-card transition-all duration-300 hover:border-primary/30 hover:shadow-card-hover"
-                >
-                  <div className="mb-4 flex items-start justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                      <FileText className="h-6 w-6 text-primary" />
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleToggleBookmark(material.id)}
-                        className="p-1 rounded hover:bg-secondary transition-colors"
-                        title={bookmarkedMaterialIds.has(material.id) ? "Remove bookmark" : "Add bookmark"}
-                      >
-                        {bookmarkedMaterialIds.has(material.id) ? (
-                          <BookmarkCheck className="h-5 w-5 text-primary" />
-                        ) : (
-                          <Bookmark className="h-5 w-5 text-muted-foreground hover:text-primary" />
-                        )}
-                      </button>
-                      <Badge variant="secondary" className="text-xs">
-                        {material.file_type.split("/").pop()?.toUpperCase() || "FILE"}
-                      </Badge>
-                    </div>
-                  </div>
-
-                  <h3 className="mb-2 font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors line-clamp-2">
-                    {material.title}
-                  </h3>
-
-                  <Link
-                    to={`/subjects/${material.subjects?.slug}`}
-                    className="mb-2 text-sm text-primary hover:underline"
-                  >
-                    {material.subjects?.name}
-                  </Link>
-
-                  {material.description && (
-                    <p className="mb-3 text-sm text-muted-foreground line-clamp-2">
-                      {material.description}
-                    </p>
-                  )}
-
-                  <div className="mt-auto">
-                    <div className="mb-4 flex items-center gap-1 text-sm text-muted-foreground">
-                      <User className="h-4 w-4" />
-                      {material.author_profile?.full_name || "Unknown author"}
-                    </div>
-
-                    <div className="flex items-center justify-between border-t border-border pt-4">
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                        <span className="flex items-center gap-1">
-                          <Eye className="h-4 w-4" />
-                          {material.views || 0}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Download className="h-4 w-4" />
-                          {material.downloads || 0}
-                        </span>
-                      </div>
-                    </div>
-
-                    <Button
-                      className="mt-4 w-full bg-gradient-hero hover:opacity-90"
-                      onClick={() => handleDownload(material)}
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
-                  </div>
-                </article>
+                  material={material}
+                  isBookmarked={bookmarkedIds.has(material.id)}
+                  onToggleBookmark={handleToggleBookmark}
+                  onDownload={handleDownload}
+                />
               ))}
             </div>
           )}
