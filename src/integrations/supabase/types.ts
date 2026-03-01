@@ -106,6 +106,147 @@ export type Database = {
           },
         ]
       }
+      material_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          material_id: string
+          parent_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          material_id: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          material_id?: string
+          parent_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_comments_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "material_comments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          material_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_ratings_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_reports: {
+        Row: {
+          created_at: string
+          id: string
+          material_id: string
+          reason: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          material_id: string
+          reason: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          material_id?: string
+          reason?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_reports_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      material_views: {
+        Row: {
+          id: string
+          material_id: string
+          user_id: string
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          material_id: string
+          user_id: string
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          material_id?: string
+          user_id?: string
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_views_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       materials: {
         Row: {
           approved_at: string | null
@@ -120,9 +261,11 @@ export type Database = {
           file_type: string
           file_url: string
           id: string
+          is_draft: boolean | null
           rejection_reason: string | null
           status: Database["public"]["Enums"]["material_status"]
           subject_id: string
+          tags: string[] | null
           title: string
           updated_at: string
           views: number | null
@@ -140,9 +283,11 @@ export type Database = {
           file_type: string
           file_url: string
           id?: string
+          is_draft?: boolean | null
           rejection_reason?: string | null
           status?: Database["public"]["Enums"]["material_status"]
           subject_id: string
+          tags?: string[] | null
           title: string
           updated_at?: string
           views?: number | null
@@ -160,9 +305,11 @@ export type Database = {
           file_type?: string
           file_url?: string
           id?: string
+          is_draft?: boolean | null
           rejection_reason?: string | null
           status?: Database["public"]["Enums"]["material_status"]
           subject_id?: string
+          tags?: string[] | null
           title?: string
           updated_at?: string
           views?: number | null
@@ -173,6 +320,41 @@ export type Database = {
             columns: ["subject_id"]
             isOneToOne: false
             referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      moderation_log: {
+        Row: {
+          action: string
+          admin_id: string
+          created_at: string
+          id: string
+          material_id: string
+          reason: string | null
+        }
+        Insert: {
+          action: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          material_id: string
+          reason?: string | null
+        }
+        Update: {
+          action?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          material_id?: string
+          reason?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moderation_log_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
             referencedColumns: ["id"]
           },
         ]
@@ -204,6 +386,27 @@ export type Database = {
           id?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      rejection_templates: {
+        Row: {
+          created_at: string
+          id: string
+          reason: string
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          reason: string
+          title: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          reason?: string
+          title?: string
         }
         Relationships: []
       }

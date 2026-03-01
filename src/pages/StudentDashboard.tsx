@@ -1,38 +1,50 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserDownloads } from "@/hooks/useUserDownloads";
 import { useBookmarks, useRemoveBookmark } from "@/hooks/useBookmarks";
+import { useRecentViews, useWeeklyActivity, useSubjectProgress } from "@/hooks/useMaterialViews";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import {
-  GraduationCap,
-  FileText,
-  Download,
-  Bookmark,
-  BookmarkX,
-  ExternalLink,
-  Calendar,
+  GraduationCap, FileText, Download, Bookmark, BookmarkX,
+  ExternalLink, Calendar, Eye, Flame, TrendingUp, BookOpen,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+} from "recharts";
 
 const StudentDashboard = () => {
   const { profile } = useAuth();
   const { data: downloads, isLoading: downloadsLoading } = useUserDownloads();
   const { data: bookmarks, isLoading: bookmarksLoading } = useBookmarks();
+  const { data: recentViews, isLoading: viewsLoading } = useRecentViews(8);
+  const { data: weeklyActivity } = useWeeklyActivity();
+  const { data: subjectProgress } = useSubjectProgress();
   const removeBookmark = useRemoveBookmark();
   const { toast } = useToast();
 
   const handleRemoveBookmark = (materialId: string) => {
     removeBookmark.mutate(materialId, {
-      onSuccess: () => {
-        toast({ title: "Bookmark removed" });
-      },
+      onSuccess: () => toast({ title: "Bookmark removed" }),
     });
   };
+
+  // Learning streak: count consecutive days with activity
+  const streak = (weeklyActivity || [])
+    .slice()
+    .reverse()
+    .reduce((count, day) => {
+      if (day.views + day.downloads > 0 || count > 0) return count + (day.views + day.downloads > 0 ? 1 : 0);
+      return 0;
+    }, 0);
+
+  const activeSubjects = (subjectProgress || []).filter((s) => s.userViews > 0 || s.userDownloads > 0);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -55,18 +67,16 @@ const StudentDashboard = () => {
             </div>
           </div>
 
-          {/* Stats */}
-          <div className="mb-8 grid gap-4 md:grid-cols-2">
+          {/* Stats Row */}
+          <div className="mb-8 grid gap-4 md:grid-cols-4">
             <div className="rounded-xl border border-border bg-card p-6 shadow-card">
               <div className="flex items-center gap-4">
                 <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
                   <Download className="h-6 w-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {downloads?.length || 0}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Downloaded Materials</p>
+                  <p className="text-2xl font-bold text-foreground">{downloads?.length || 0}</p>
+                  <p className="text-sm text-muted-foreground">Downloads</p>
                 </div>
               </div>
             </div>
@@ -76,17 +86,89 @@ const StudentDashboard = () => {
                   <Bookmark className="h-6 w-6 text-warning" />
                 </div>
                 <div>
-                  <p className="text-2xl font-bold text-foreground">
-                    {bookmarks?.length || 0}
-                  </p>
-                  <p className="text-sm text-muted-foreground">Bookmarked Materials</p>
+                  <p className="text-2xl font-bold text-foreground">{bookmarks?.length || 0}</p>
+                  <p className="text-sm text-muted-foreground">Bookmarks</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-success/10">
+                  <Eye className="h-6 w-6 text-success" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{recentViews?.length || 0}</p>
+                  <p className="text-sm text-muted-foreground">Viewed</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-xl border border-border bg-card p-6 shadow-card">
+              <div className="flex items-center gap-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-destructive/10">
+                  <Flame className="h-6 w-6 text-destructive" />
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-foreground">{streak}</p>
+                  <p className="text-sm text-muted-foreground">Day Streak</p>
                 </div>
               </div>
             </div>
           </div>
 
-          <Tabs defaultValue="downloads" className="space-y-6">
-            <TabsList className="grid w-full max-w-md grid-cols-2">
+          {/* Weekly Activity Chart */}
+          {weeklyActivity && weeklyActivity.length > 0 && (
+            <div className="mb-8 rounded-xl border border-border bg-card p-6 shadow-card">
+              <h2 className="mb-4 font-display text-lg font-semibold text-foreground flex items-center gap-2">
+                <TrendingUp className="h-5 w-5 text-primary" />
+                Weekly Activity
+              </h2>
+              <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={weeklyActivity}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="day" className="text-muted-foreground" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="views" name="Views" fill="hsl(210 85% 45%)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="downloads" name="Downloads" fill="hsl(145 65% 42%)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {/* Subject Progress Cards */}
+          {activeSubjects.length > 0 && (
+            <div className="mb-8">
+              <h2 className="mb-4 font-display text-lg font-semibold text-foreground flex items-center gap-2">
+                <BookOpen className="h-5 w-5 text-primary" />
+                Subject Progress
+              </h2>
+              <div className="grid gap-4 md:grid-cols-3">
+                {activeSubjects.map((subject) => (
+                  <Link key={subject.id} to={`/subjects/${subject.slug}`}>
+                    <div className="rounded-xl border border-border bg-card p-5 shadow-card transition-shadow hover:shadow-card-hover">
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="font-medium text-foreground">{subject.name}</h3>
+                        <Badge variant="secondary">{subject.progress}%</Badge>
+                      </div>
+                      <Progress value={subject.progress} className="h-2 mb-2" />
+                      <div className="flex gap-4 text-xs text-muted-foreground">
+                        <span>{subject.userViews} views</span>
+                        <span>{subject.userDownloads} / {subject.materials_count || 0} downloaded</span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <Tabs defaultValue="recent" className="space-y-6">
+            <TabsList className="grid w-full max-w-lg grid-cols-3">
+              <TabsTrigger value="recent" className="flex items-center gap-2">
+                <Eye className="h-4 w-4" />
+                Recently Viewed
+              </TabsTrigger>
               <TabsTrigger value="downloads" className="flex items-center gap-2">
                 <Download className="h-4 w-4" />
                 Downloads
@@ -97,39 +179,84 @@ const StudentDashboard = () => {
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="downloads" className="space-y-6">
+            {/* Recently Viewed Tab */}
+            <TabsContent value="recent" className="space-y-6">
               <div className="rounded-xl border border-border bg-card shadow-card">
                 <div className="border-b border-border p-6">
-                  <h2 className="font-display text-xl font-semibold text-foreground">
-                    Downloaded Materials
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    Materials you've downloaded for studying
-                  </p>
+                  <h2 className="font-display text-xl font-semibold text-foreground">Continue Studying</h2>
+                  <p className="text-sm text-muted-foreground">Pick up where you left off</p>
                 </div>
-
-                {downloadsLoading ? (
+                {viewsLoading ? (
                   <div className="flex items-center justify-center p-12">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                   </div>
-                ) : downloads?.length === 0 ? (
+                ) : !recentViews?.length ? (
                   <div className="p-12 text-center">
-                    <Download className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-display text-lg font-semibold text-foreground">
-                      No downloads yet
-                    </h3>
-                    <p className="mt-2 text-muted-foreground">
-                      Start exploring materials to build your collection.
-                    </p>
+                    <Eye className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                    <h3 className="mt-4 font-display text-lg font-semibold text-foreground">No views yet</h3>
+                    <p className="mt-2 text-muted-foreground">Start exploring materials.</p>
                     <Link to="/materials">
-                      <Button className="mt-4 bg-gradient-hero hover:opacity-90">
-                        Browse Materials
-                      </Button>
+                      <Button className="mt-4 bg-gradient-hero hover:opacity-90">Browse Materials</Button>
                     </Link>
                   </div>
                 ) : (
                   <div className="divide-y divide-border">
-                    {downloads?.map((download) => (
+                    {recentViews.map((view) => (
+                      <div key={view.id} className="p-4">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex items-start gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                              <FileText className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <h3 className="font-medium text-foreground">{(view.materials as any)?.title}</h3>
+                              <div className="mt-1 flex flex-wrap items-center gap-2">
+                                {(view.materials as any)?.subjects && (
+                                  <Link to={`/subjects/${(view.materials as any).subjects.slug}`}>
+                                    <Badge variant="secondary" className="cursor-pointer hover:bg-primary hover:text-primary-foreground">
+                                      {(view.materials as any).subjects.name}
+                                    </Badge>
+                                  </Link>
+                                )}
+                                <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                                  <Calendar className="h-3 w-3" />
+                                  {formatDistanceToNow(new Date(view.viewed_at), { addSuffix: true })}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <Button variant="outline" size="sm" onClick={() => window.open((view.materials as any)?.file_url, "_blank")}>
+                            <ExternalLink className="mr-1 h-4 w-4" /> Open
+                          </Button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            {/* Downloads Tab */}
+            <TabsContent value="downloads" className="space-y-6">
+              <div className="rounded-xl border border-border bg-card shadow-card">
+                <div className="border-b border-border p-6">
+                  <h2 className="font-display text-xl font-semibold text-foreground">Downloaded Materials</h2>
+                  <p className="text-sm text-muted-foreground">Materials you've downloaded</p>
+                </div>
+                {downloadsLoading ? (
+                  <div className="flex items-center justify-center p-12">
+                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+                  </div>
+                ) : !downloads?.length ? (
+                  <div className="p-12 text-center">
+                    <Download className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                    <h3 className="mt-4 font-display text-lg font-semibold text-foreground">No downloads yet</h3>
+                    <p className="mt-2 text-muted-foreground">Start exploring materials.</p>
+                    <Link to="/materials"><Button className="mt-4 bg-gradient-hero hover:opacity-90">Browse Materials</Button></Link>
+                  </div>
+                ) : (
+                  <div className="divide-y divide-border">
+                    {downloads.map((download) => (
                       <div key={download.id} className="p-4">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-start gap-3">
@@ -137,9 +264,7 @@ const StudentDashboard = () => {
                               <FileText className="h-5 w-5 text-primary" />
                             </div>
                             <div>
-                              <h3 className="font-medium text-foreground">
-                                {download.materials?.title}
-                              </h3>
+                              <h3 className="font-medium text-foreground">{download.materials?.title}</h3>
                               <div className="mt-1 flex flex-wrap items-center gap-2">
                                 {download.materials?.subjects && (
                                   <Link to={`/subjects/${download.materials.subjects.slug}`}>
@@ -155,13 +280,8 @@ const StudentDashboard = () => {
                               </div>
                             </div>
                           </div>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(download.materials?.file_url, "_blank")}
-                          >
-                            <ExternalLink className="mr-1 h-4 w-4" />
-                            Open
+                          <Button variant="outline" size="sm" onClick={() => window.open(download.materials?.file_url, "_blank")}>
+                            <ExternalLink className="mr-1 h-4 w-4" /> Open
                           </Button>
                         </div>
                       </div>
@@ -171,39 +291,27 @@ const StudentDashboard = () => {
               </div>
             </TabsContent>
 
+            {/* Bookmarks Tab */}
             <TabsContent value="bookmarks" className="space-y-6">
               <div className="rounded-xl border border-border bg-card shadow-card">
                 <div className="border-b border-border p-6">
-                  <h2 className="font-display text-xl font-semibold text-foreground">
-                    Bookmarked Materials
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    Materials you've saved for later
-                  </p>
+                  <h2 className="font-display text-xl font-semibold text-foreground">Bookmarked Materials</h2>
+                  <p className="text-sm text-muted-foreground">Materials you've saved for later</p>
                 </div>
-
                 {bookmarksLoading ? (
                   <div className="flex items-center justify-center p-12">
                     <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
                   </div>
-                ) : bookmarks?.length === 0 ? (
+                ) : !bookmarks?.length ? (
                   <div className="p-12 text-center">
                     <Bookmark className="mx-auto h-12 w-12 text-muted-foreground/50" />
-                    <h3 className="mt-4 font-display text-lg font-semibold text-foreground">
-                      No bookmarks yet
-                    </h3>
-                    <p className="mt-2 text-muted-foreground">
-                      Bookmark materials to easily find them later.
-                    </p>
-                    <Link to="/materials">
-                      <Button className="mt-4 bg-gradient-hero hover:opacity-90">
-                        Browse Materials
-                      </Button>
-                    </Link>
+                    <h3 className="mt-4 font-display text-lg font-semibold text-foreground">No bookmarks yet</h3>
+                    <p className="mt-2 text-muted-foreground">Bookmark materials to find them later.</p>
+                    <Link to="/materials"><Button className="mt-4 bg-gradient-hero hover:opacity-90">Browse Materials</Button></Link>
                   </div>
                 ) : (
                   <div className="divide-y divide-border">
-                    {bookmarks?.map((bookmark) => (
+                    {bookmarks.map((bookmark) => (
                       <div key={bookmark.id} className="p-4">
                         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-start gap-3">
@@ -211,9 +319,7 @@ const StudentDashboard = () => {
                               <Bookmark className="h-5 w-5 text-warning" />
                             </div>
                             <div>
-                              <h3 className="font-medium text-foreground">
-                                {bookmark.materials?.title}
-                              </h3>
+                              <h3 className="font-medium text-foreground">{bookmark.materials?.title}</h3>
                               <div className="mt-1 flex flex-wrap items-center gap-2">
                                 {bookmark.materials?.subjects && (
                                   <Link to={`/subjects/${bookmark.materials.subjects.slug}`}>
@@ -230,20 +336,10 @@ const StudentDashboard = () => {
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => window.open(bookmark.materials?.file_url, "_blank")}
-                            >
-                              <ExternalLink className="mr-1 h-4 w-4" />
-                              Open
+                            <Button variant="outline" size="sm" onClick={() => window.open(bookmark.materials?.file_url, "_blank")}>
+                              <ExternalLink className="mr-1 h-4 w-4" /> Open
                             </Button>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-destructive hover:text-destructive"
-                              onClick={() => handleRemoveBookmark(bookmark.material_id)}
-                            >
+                            <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive" onClick={() => handleRemoveBookmark(bookmark.material_id)}>
                               <BookmarkX className="h-4 w-4" />
                             </Button>
                           </div>
