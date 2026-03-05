@@ -16,6 +16,8 @@ import StudentDashboard from "./pages/StudentDashboard";
 import HelpCenter from "./pages/HelpCenter";
 import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
+import DoubtSolver from "./pages/DoubtSolver";
+import QuizGenerator from "./pages/QuizGenerator";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +38,22 @@ const App = () => (
             <Route path="/help" element={<HelpCenter />} />
             <Route path="/contact" element={<Contact />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route
+              path="/doubt-solver"
+              element={
+                <ProtectedRoute allowedRoles={["student", "teacher", "admin"]}>
+                  <DoubtSolver />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/quiz"
+              element={
+                <ProtectedRoute allowedRoles={["student", "teacher", "admin"]}>
+                  <QuizGenerator />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="/student"
               element={

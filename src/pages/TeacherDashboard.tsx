@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubjects } from "@/hooks/useSubjects";
 import { useMyMaterials, useUploadMaterial } from "@/hooks/useMaterials";
+import { useDeleteMaterial } from "@/hooks/useDeleteMaterial";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
@@ -18,14 +19,19 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Upload, FileText, Plus, Clock, CheckCircle, XCircle, Eye, Download, Tag, AlertCircle,
+  Upload, FileText, Plus, Clock, CheckCircle, XCircle, Eye, Download, Tag, AlertCircle, Trash2,
 } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const TeacherDashboard = () => {
   const { profile } = useAuth();
   const { data: subjects } = useSubjects();
   const { data: myMaterials, isLoading } = useMyMaterials();
   const uploadMutation = useUploadMaterial();
+  const deleteMutation = useDeleteMaterial();
   const { toast } = useToast();
 
   const [isUploadOpen, setIsUploadOpen] = useState(false);
@@ -242,7 +248,38 @@ const TeacherDashboard = () => {
                         </div>
                       </div>
                     </div>
-                    <Button variant="outline" size="sm" onClick={() => window.open(material.file_url, "_blank")}>View File</Button>
+                    <div className="flex items-center gap-2">
+                      <Button variant="outline" size="sm" onClick={() => window.open(material.file_url, "_blank")}>View File</Button>
+                      <AlertDialog>
+                        <AlertDialogTrigger asChild>
+                          <Button variant="outline" size="sm" className="text-destructive hover:bg-destructive/10">
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle>Delete Material</AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Are you sure you want to delete "{material.title}"? This cannot be undone.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                            <AlertDialogAction
+                              className="bg-destructive hover:bg-destructive/90"
+                              onClick={() => {
+                                deleteMutation.mutate(material.id, {
+                                  onSuccess: () => toast({ title: "Material deleted" }),
+                                  onError: (e: any) => toast({ title: "Delete failed", description: e.message, variant: "destructive" }),
+                                });
+                              }}
+                            >
+                              Delete
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
                 ))}
               </div>

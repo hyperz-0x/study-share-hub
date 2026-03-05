@@ -2,3 +2,9 @@ project_id = "ubnagtorpqpczxteelrc"
 
 [functions.send-material-notification]
 verify_jwt = false
+
+[functions.ai-doubt-solver]
+verify_jwt = false
+
+[functions.ai-quiz-generator]
+verify_jwt = false

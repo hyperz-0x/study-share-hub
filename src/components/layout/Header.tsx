@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, Search, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, Search, User, LogOut, LayoutDashboard, Sparkles, Brain } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Header = () => {
@@ -39,39 +39,34 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden items-center gap-6 md:flex">
-          <Link
-            to="/subjects"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
+          <Link to="/subjects" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
             Subjects
           </Link>
-          <Link
-            to="/materials"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-          >
+          <Link to="/materials" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
             Materials
           </Link>
+          {user && (
+            <Link to="/doubt-solver" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1">
+              <Sparkles className="h-3.5 w-3.5" />AI Doubts
+            </Link>
+          )}
+          {user && (
+            <Link to="/quiz" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1">
+              <Brain className="h-3.5 w-3.5" />Quiz
+            </Link>
+          )}
           {isStudent && (
-            <Link
-              to="/student"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
+            <Link to="/student" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               My Dashboard
             </Link>
           )}
           {isTeacher && (
-            <Link
-              to="/teacher"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
+            <Link to="/teacher" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               Dashboard
             </Link>
           )}
           {isAdmin && (
-            <Link
-              to="/admin"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
+            <Link to="/admin" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               Admin
             </Link>
           )}
@@ -141,46 +136,26 @@ const Header = () => {
       {isMenuOpen && (
         <div className="border-t border-border bg-background md:hidden">
           <nav className="container flex flex-col gap-4 px-4 py-4">
-            <Link
-              to="/subjects"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Subjects
-            </Link>
-            <Link
-              to="/materials"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-              onClick={() => setIsMenuOpen(false)}
-            >
-              Materials
-            </Link>
-            {isStudent && (
-              <Link
-                to="/student"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                My Dashboard
+            <Link to="/subjects" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Subjects</Link>
+            <Link to="/materials" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Materials</Link>
+            {user && (
+              <Link to="/doubt-solver" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1" onClick={() => setIsMenuOpen(false)}>
+                <Sparkles className="h-3.5 w-3.5" />AI Doubt Solver
               </Link>
+            )}
+            {user && (
+              <Link to="/quiz" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1" onClick={() => setIsMenuOpen(false)}>
+                <Brain className="h-3.5 w-3.5" />AI Quiz
+              </Link>
+            )}
+            {isStudent && (
+              <Link to="/student" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" onClick={() => setIsMenuOpen(false)}>My Dashboard</Link>
             )}
             {isTeacher && (
-              <Link
-                to="/teacher"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Dashboard
-              </Link>
+              <Link to="/teacher" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Dashboard</Link>
             )}
             {isAdmin && (
-              <Link
-                to="/admin"
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                Admin
-              </Link>
+              <Link to="/admin" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" onClick={() => setIsMenuOpen(false)}>Admin</Link>
             )}
             <div className="flex flex-col gap-2 pt-2">
               {user ? (
