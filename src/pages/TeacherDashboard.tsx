@@ -19,8 +19,9 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
-  Upload, FileText, Plus, Clock, CheckCircle, XCircle, Eye, Download, Tag, AlertCircle, Trash2,
+  Upload, FileText, Plus, Clock, CheckCircle, XCircle, Eye, Download, Tag, AlertCircle, Trash2, Sparkles, Brain,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
