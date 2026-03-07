@@ -41,7 +41,7 @@ const App = () => (
             <Route
               path="/doubt-solver"
               element={
-                <ProtectedRoute allowedRoles={["student", "teacher", "admin"]}>
+                <ProtectedRoute>
                   <DoubtSolver />
                 </ProtectedRoute>
               }
@@ -49,7 +49,7 @@ const App = () => (
             <Route
               path="/quiz"
               element={
-                <ProtectedRoute allowedRoles={["student", "teacher", "admin"]}>
+                <ProtectedRoute>
                   <QuizGenerator />
                 </ProtectedRoute>
               }
