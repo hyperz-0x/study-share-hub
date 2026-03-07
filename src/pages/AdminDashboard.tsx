@@ -30,8 +30,9 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
   Shield, FileText, CheckCircle, XCircle, Clock, ExternalLink, User, Users,
-  Plus, Trash2, GraduationCap, BookOpen, X, BarChart3, History, AlertTriangle, ListChecks,
+  Plus, Trash2, GraduationCap, BookOpen, X, BarChart3, History, AlertTriangle, ListChecks, Sparkles, Brain,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { formatDistanceToNow, differenceInHours } from "date-fns";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
