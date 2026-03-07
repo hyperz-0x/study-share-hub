@@ -163,6 +163,7 @@ const TeacherDashboard = () => {
                 </form>
               </DialogContent>
             </Dialog>
+            </div>
           </div>
 
           {/* Stats */}
