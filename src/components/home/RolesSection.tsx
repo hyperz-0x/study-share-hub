@@ -7,7 +7,7 @@ const roles = [
     icon: GraduationCap,
     title: "For Students",
     description: "Access thousands of curated study materials, notes, and PDFs across all subjects. Track your learning progress and bookmark favorites.",
-    features: ["Browse subject-wise materials", "Download PDFs & notes", "Bookmark resources", "Track learning history"],
+    features: ["Browse subject-wise materials", "Download PDFs & notes", "Bookmark resources", "Track learning history", "AI Doubt Solver", "AI Quiz Generator"],
     cta: "Start Learning",
     link: "/student",
     gradient: "from-blue-500/20 to-cyan-500/20",
