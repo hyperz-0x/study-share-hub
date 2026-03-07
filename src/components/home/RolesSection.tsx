@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, BookMarked, Shield, ArrowRight } from "lucide-react";
+import { GraduationCap, BookMarked, Shield, ArrowRight, Sparkles, Brain } from "lucide-react";
 
 const roles = [
   {
