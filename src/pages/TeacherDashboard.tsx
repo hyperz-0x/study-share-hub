@@ -88,10 +88,21 @@ const TeacherDashboard = () => {
               <h1 className="font-display text-3xl font-bold text-foreground">Teacher Dashboard</h1>
               <p className="text-muted-foreground">Welcome back, {profile?.full_name}! Manage your materials.</p>
             </div>
-            <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
-              <DialogTrigger asChild>
-                <Button className="bg-gradient-hero hover:opacity-90"><Plus className="mr-2 h-4 w-4" />Upload Material</Button>
-              </DialogTrigger>
+            <div className="flex gap-2 flex-wrap">
+              <Link to="/doubt-solver">
+                <Button variant="outline" className="gap-2 border-primary/30 text-primary hover:bg-primary/10 transition-all duration-300 hover:scale-105">
+                  <Sparkles className="h-4 w-4" />AI Doubts
+                </Button>
+              </Link>
+              <Link to="/quiz">
+                <Button variant="outline" className="gap-2 border-primary/30 text-primary hover:bg-primary/10 transition-all duration-300 hover:scale-105">
+                  <Brain className="h-4 w-4" />AI Quiz
+                </Button>
+              </Link>
+              <Dialog open={isUploadOpen} onOpenChange={setIsUploadOpen}>
+                <DialogTrigger asChild>
+                  <Button className="bg-gradient-hero hover:opacity-90"><Plus className="mr-2 h-4 w-4" />Upload Material</Button>
+                </DialogTrigger>
               <DialogContent className="sm:max-w-lg">
                 <DialogHeader>
                   <DialogTitle className="font-display">Upload Study Material</DialogTitle>
