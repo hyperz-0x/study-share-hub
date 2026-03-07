@@ -191,6 +191,18 @@ const AdminDashboard = () => {
                 <p className="text-muted-foreground">Welcome, {profile?.full_name}!</p>
               </div>
             </div>
+            <div className="flex gap-2 flex-wrap">
+              <Link to="/doubt-solver">
+                <Button variant="outline" className="gap-2 border-primary/30 text-primary hover:bg-primary/10 transition-all duration-300 hover:scale-105">
+                  <Sparkles className="h-4 w-4" />AI Doubts
+                </Button>
+              </Link>
+              <Link to="/quiz">
+                <Button variant="outline" className="gap-2 border-primary/30 text-primary hover:bg-primary/10 transition-all duration-300 hover:scale-105">
+                  <Brain className="h-4 w-4" />AI Quiz
+                </Button>
+              </Link>
+            </div>
           </div>
 
           <Tabs defaultValue="materials" className="space-y-6">
