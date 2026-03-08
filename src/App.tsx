@@ -73,6 +73,7 @@ const App = () => (
                   <Forum />
                 </ProtectedRoute>
               }
+            />
             <Route
               path="/student"
               element={
