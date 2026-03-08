@@ -31,11 +31,15 @@ const Forum = () => {
   const { data: threads = [] } = useQuery({
     queryKey: ["forum-threads", subjectFilter],
     queryFn: async () => {
-      let query = supabase.from("forum_threads").select("*, subjects(name), profiles!forum_threads_user_id_fkey(full_name)").order("is_pinned", { ascending: false }).order("created_at", { ascending: false });
+      let query = supabase.from("forum_threads").select("*, subjects(name)").order("is_pinned", { ascending: false }).order("created_at", { ascending: false });
       if (subjectFilter !== "all") query = query.eq("subject_id", subjectFilter);
       const { data, error } = await query;
       if (error) throw error;
-      return data;
+      // Fetch profiles for all user_ids
+      const userIds = [...new Set((data || []).map((t: any) => t.user_id))];
+      const { data: profiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", userIds);
+      const profileMap = new Map(profiles?.map((p) => [p.user_id, p.full_name]) || []);
+      return (data || []).map((t: any) => ({ ...t, author_name: profileMap.get(t.user_id) || "Unknown" }));
     },
     enabled: !!user,
   });
@@ -43,9 +47,10 @@ const Forum = () => {
   const { data: currentThread } = useQuery({
     queryKey: ["forum-thread", selectedThread],
     queryFn: async () => {
-      const { data, error } = await supabase.from("forum_threads").select("*, subjects(name), profiles!forum_threads_user_id_fkey(full_name)").eq("id", selectedThread!).single();
+      const { data, error } = await supabase.from("forum_threads").select("*, subjects(name)").eq("id", selectedThread!).single();
       if (error) throw error;
-      return data;
+      const { data: prof } = await supabase.from("profiles").select("full_name").eq("user_id", data.user_id).single();
+      return { ...data, author_name: prof?.full_name || "Unknown" };
     },
     enabled: !!selectedThread,
   });
@@ -53,9 +58,12 @@ const Forum = () => {
   const { data: replies = [] } = useQuery({
     queryKey: ["forum-replies", selectedThread],
     queryFn: async () => {
-      const { data, error } = await supabase.from("forum_replies").select("*, profiles!forum_replies_user_id_fkey(full_name)").eq("thread_id", selectedThread!).order("created_at", { ascending: true });
+      const { data, error } = await supabase.from("forum_replies").select("*").eq("thread_id", selectedThread!).order("created_at", { ascending: true });
       if (error) throw error;
-      return data;
+      const userIds = [...new Set((data || []).map((r: any) => r.user_id))];
+      const { data: profiles } = await supabase.from("profiles").select("user_id, full_name").in("user_id", userIds);
+      const profileMap = new Map(profiles?.map((p) => [p.user_id, p.full_name]) || []);
+      return (data || []).map((r: any) => ({ ...r, author_name: profileMap.get(r.user_id) || "Unknown" }));
     },
     enabled: !!selectedThread,
   });
