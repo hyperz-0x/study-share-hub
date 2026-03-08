@@ -155,7 +155,7 @@ const Forum = () => {
                     </div>
                     <CardTitle className="text-xl">{currentThread.title}</CardTitle>
                     <p className="text-sm text-muted-foreground mt-1">
-                      by {(currentThread as any).profiles?.full_name || "Unknown"} · {formatDistanceToNow(new Date(currentThread.created_at), { addSuffix: true })}
+                      by {currentThread.author_name} · {formatDistanceToNow(new Date(currentThread.created_at), { addSuffix: true })}
                     </p>
                   </div>
                   <div className="flex gap-1">
