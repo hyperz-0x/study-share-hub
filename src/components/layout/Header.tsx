@@ -56,6 +56,16 @@ const Header = () => {
               <Brain className="h-3.5 w-3.5" />Quiz
             </Link>
           )}
+          {user && (
+            <Link to="/study-planner" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1">
+              <CalendarCheck className="h-3.5 w-3.5" />Planner
+            </Link>
+          )}
+          {user && (
+            <Link to="/forum" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1">
+              <MessageSquare className="h-3.5 w-3.5" />Forum
+            </Link>
+          )}
           {isStudent && (
             <Link to="/student" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
               My Dashboard
