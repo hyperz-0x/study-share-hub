@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Menu, X, Search, User, LogOut, LayoutDashboard, Sparkles, Brain } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import logo from "@/assets/logo.png";
 
 const Header = () => {
@@ -73,6 +74,7 @@ const Header = () => {
         </nav>
 
         <div className="hidden items-center gap-3 md:flex">
+          <ThemeToggle />
           <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
             <Search className="h-5 w-5" />
           </Button>
