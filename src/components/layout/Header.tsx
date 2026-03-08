@@ -160,6 +160,16 @@ const Header = () => {
                 <Brain className="h-3.5 w-3.5" />AI Quiz
               </Link>
             )}
+            {user && (
+              <Link to="/study-planner" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1" onClick={() => setIsMenuOpen(false)}>
+                <CalendarCheck className="h-3.5 w-3.5" />Study Planner
+              </Link>
+            )}
+            {user && (
+              <Link to="/forum" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1" onClick={() => setIsMenuOpen(false)}>
+                <MessageSquare className="h-3.5 w-3.5" />Forum
+              </Link>
+            )}
             {isStudent && (
               <Link to="/student" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground" onClick={() => setIsMenuOpen(false)}>My Dashboard</Link>
             )}
