@@ -264,7 +264,7 @@ const Forum = () => {
                     </div>
                     <div className="flex items-center gap-2 mt-1 flex-wrap">
                       {t.subjects?.name && <Badge variant="secondary" className="text-xs">{t.subjects.name}</Badge>}
-                      <span className="text-xs text-muted-foreground">by {t.profiles?.full_name || "Unknown"}</span>
+                      <span className="text-xs text-muted-foreground">by {t.author_name}</span>
                       <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(t.created_at), { addSuffix: true })}</span>
                     </div>
                   </div>
