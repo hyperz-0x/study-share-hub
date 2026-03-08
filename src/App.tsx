@@ -19,6 +19,8 @@ import Contact from "./pages/Contact";
 import Privacy from "./pages/Privacy";
 import DoubtSolver from "./pages/DoubtSolver";
 import QuizGenerator from "./pages/QuizGenerator";
+import StudyPlanner from "./pages/StudyPlanner";
+import Forum from "./pages/Forum";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -53,6 +55,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <QuizGenerator />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/study-planner"
+              element={
+                <ProtectedRoute>
+                  <StudyPlanner />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/forum"
+              element={
+                <ProtectedRoute>
+                  <Forum />
                 </ProtectedRoute>
               }
             />

@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, Search, User, LogOut, LayoutDashboard, Sparkles, Brain } from "lucide-react";
+import { Menu, X, Search, User, LogOut, LayoutDashboard, Sparkles, Brain, CalendarCheck, MessageSquare } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import logo from "@/assets/logo.png";
 
@@ -54,6 +54,16 @@ const Header = () => {
           {user && (
             <Link to="/quiz" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1">
               <Brain className="h-3.5 w-3.5" />Quiz
+            </Link>
+          )}
+          {user && (
+            <Link to="/study-planner" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1">
+              <CalendarCheck className="h-3.5 w-3.5" />Planner
+            </Link>
+          )}
+          {user && (
+            <Link to="/forum" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1">
+              <MessageSquare className="h-3.5 w-3.5" />Forum
             </Link>
           )}
           {isStudent && (
@@ -148,6 +158,16 @@ const Header = () => {
             {user && (
               <Link to="/quiz" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1" onClick={() => setIsMenuOpen(false)}>
                 <Brain className="h-3.5 w-3.5" />AI Quiz
+              </Link>
+            )}
+            {user && (
+              <Link to="/study-planner" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1" onClick={() => setIsMenuOpen(false)}>
+                <CalendarCheck className="h-3.5 w-3.5" />Study Planner
+              </Link>
+            )}
+            {user && (
+              <Link to="/forum" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1" onClick={() => setIsMenuOpen(false)}>
+                <MessageSquare className="h-3.5 w-3.5" />Forum
               </Link>
             )}
             {isStudent && (
