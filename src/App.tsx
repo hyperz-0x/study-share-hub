@@ -59,6 +59,21 @@ const App = () => (
               }
             />
             <Route
+              path="/study-planner"
+              element={
+                <ProtectedRoute>
+                  <StudyPlanner />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/forum"
+              element={
+                <ProtectedRoute>
+                  <Forum />
+                </ProtectedRoute>
+              }
+            <Route
               path="/student"
               element={
                 <ProtectedRoute allowedRoles={["student"]}>
