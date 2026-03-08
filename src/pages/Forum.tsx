@@ -183,7 +183,7 @@ const Forum = () => {
                 <Card key={r.id}>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-medium text-foreground">{r.profiles?.full_name || "Unknown"}</span>
+                      <span className="text-sm font-medium text-foreground">{r.author_name}</span>
                       <span className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(r.created_at), { addSuffix: true })}</span>
                       {r.is_answer && <Badge className="bg-success/10 text-success border-0 text-xs">Answer</Badge>}
                     </div>
