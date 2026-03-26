@@ -9,7 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, X, Search, User, LogOut, LayoutDashboard, Sparkles, Brain, CalendarCheck, MessageSquare } from "lucide-react";
+import { Menu, X, Search, User, LogOut, LayoutDashboard, Sparkles, Brain, CalendarCheck, MessageSquare, Video } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import logo from "@/assets/logo.png";
 
@@ -64,6 +64,11 @@ const Header = () => {
           {user && (
             <Link to="/forum" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1">
               <MessageSquare className="h-3.5 w-3.5" />Forum
+            </Link>
+          )}
+          {user && (
+            <Link to="/meetings" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1">
+              <Video className="h-3.5 w-3.5" />Meetings
             </Link>
           )}
           {isStudent && (
@@ -168,6 +173,11 @@ const Header = () => {
             {user && (
               <Link to="/forum" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1" onClick={() => setIsMenuOpen(false)}>
                 <MessageSquare className="h-3.5 w-3.5" />Forum
+              </Link>
+            )}
+            {user && (
+              <Link to="/meetings" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground flex items-center gap-1" onClick={() => setIsMenuOpen(false)}>
+                <Video className="h-3.5 w-3.5" />Meetings
               </Link>
             )}
             {isStudent && (
