@@ -409,6 +409,53 @@ export type Database = {
           },
         ]
       }
+      meetings: {
+        Row: {
+          created_at: string
+          description: string | null
+          host_id: string
+          id: string
+          is_active: boolean
+          room_id: string
+          scheduled_at: string | null
+          subject_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          host_id: string
+          id?: string
+          is_active?: boolean
+          room_id: string
+          scheduled_at?: string | null
+          subject_id?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          host_id?: string
+          id?: string
+          is_active?: boolean
+          room_id?: string
+          scheduled_at?: string | null
+          subject_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetings_subject_id_fkey"
+            columns: ["subject_id"]
+            isOneToOne: false
+            referencedRelation: "subjects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       moderation_log: {
         Row: {
           action: string

@@ -21,6 +21,7 @@ import DoubtSolver from "./pages/DoubtSolver";
 import QuizGenerator from "./pages/QuizGenerator";
 import StudyPlanner from "./pages/StudyPlanner";
 import Forum from "./pages/Forum";
+import VideoMeeting from "./pages/VideoMeeting";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -71,6 +72,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Forum />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/meetings"
+              element={
+                <ProtectedRoute>
+                  <VideoMeeting />
                 </ProtectedRoute>
               }
             />
